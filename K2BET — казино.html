@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>K2BET — казино</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Unbounded:wght@600;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE: нічне казино — азартно, але чисто й зрозуміло
+   IDEA: зелене сукно ігрового столу з фішками та золотими коефіцієнтами
+   PICTURE: три великі плитки ставок «К2» і колесо рулетки
+   COLOUR and TYPE: сукно #0e5638, червоний #d7263d, золото #f2c14e; Unbounded + Manrope
+   LAYOUT: шапка, вкладки, гра зліва, живий чат справа (на телефоні — окрема вкладка) */
+:root{color-scheme:light dark;
+--bg:light-dark(#eef3f0,#06120d);--panel:light-dark(#ffffff,#0c1f17);--panel2:light-dark(#e4ede8,#122a1f);
+--ink:light-dark(#0a1711,#eef6f1);--mute:light-dark(#4e6157,#8ea899);--line:light-dark(#d1ddd6,#1c3a2b);
+--goldt:light-dark(#9a6b06,#f2c14e);--win:light-dark(#0b7a45,#43e08b);--lose:light-dark(#b3192c,#ff7385);
+--felt:#0e5638;--felt2:#083a25;--gold:#f2c14e;--red:#d7263d;--blk:#16191d}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+:root.k2-light{color-scheme:light}:root.k2-dark{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Manrope,system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3,.logo,.od,.bigbal,.stat b{font-family:Unbounded,Manrope,sans-serif}
+h2{font-size:20px;margin:0 0 12px;line-height:1.2}h3{font-size:20px;margin:0 0 8px}
+button,input,select{font:inherit;color:inherit}button{cursor:pointer}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.mute{color:var(--mute)}.sm{font-size:14px}.r{text-align:right;white-space:nowrap}.c{text-align:center}
+header.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:8px 10px;flex-wrap:wrap;padding:10px max(3vw,12px);background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.logo{font-weight:800;font-size:22px;letter-spacing:-.02em;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:8px}
+.logo b{color:var(--goldt)}.logo svg{width:30px;height:30px}
+.sp{flex:1}
+#acct{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--panel);font-weight:700;font-size:14px;white-space:nowrap}
+.pill.bal{font-family:Unbounded;color:var(--goldt);font-size:15px}
+.dot{width:9px;height:9px;border-radius:50%;background:#2fd27a;box-shadow:0 0 0 4px #2fd27a33;flex:none;animation:pulse 2s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 7px #2fd27a11}}
+.btn{min-height:44px;padding:0 18px;border-radius:12px;border:1px solid var(--line);background:var(--panel);font-weight:800;white-space:nowrap}
+.btn.sm{min-height:36px;padding:0 12px;font-size:14px}
+.btn.gold{background:linear-gradient(180deg,#ffd970,#e2a92c);color:#2a1c00;border:0;box-shadow:0 2px 0 #9a6b06}
+.btn.red{background:var(--red);color:#fff;border:0}
+.btn.ghost{background:transparent}.btn.w{width:100%;margin-top:8px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.ico{width:44px;padding:0;display:grid;place-items:center}
+.link{background:none;border:0;color:var(--goldt);font-weight:700;padding:8px 0;min-height:44px;text-decoration:underline}
+nav.tabs{display:flex;gap:6px;overflow-x:auto;padding:12px max(3vw,12px) 0;max-width:1320px;margin:0 auto}
+nav.tabs a{flex:none;padding:10px 18px;border-radius:999px;text-decoration:none;color:var(--mute);font-weight:800;border:1px solid transparent}
+nav.tabs a.on{color:var(--ink);background:var(--panel);border-color:var(--line)}
+#offline{margin:10px max(3vw,12px) 0;padding:10px 14px;border-radius:12px;background:color-mix(in srgb,var(--gold) 22%,var(--panel));font-size:14px}
+.layout{display:grid;gap:18px;padding:14px max(3vw,12px) 30px;max-width:1320px;margin:0 auto;align-items:start}
+@media(min-width:1000px){.layout{grid-template-columns:minmax(0,1fr) 340px}.tab-chat{display:none!important}#chatbox{display:flex!important}}
+.view{display:grid;gap:18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}
+.felt{background:radial-gradient(120% 90% at 50% 0%,#17804f 0%,var(--felt) 48%,var(--felt2) 100%);color:#f3fbf6;border-radius:22px;padding:clamp(18px,3.4vw,36px);position:relative;overflow:hidden;box-shadow:inset 0 0 0 2px #ffffff18,inset 0 0 0 9px #0000002e,0 18px 40px -24px #000}
+.felt h1{font-size:clamp(28px,5vw,50px);line-height:1.05;margin:10px 0 6px;text-wrap:balance;font-weight:800;max-width:15ch;position:relative}
+.felt .sub{color:#cfe7da;margin:0 0 18px;position:relative}
+.deco{position:absolute;right:clamp(10px,3vw,36px);top:14px;width:170px;pointer-events:none}
+@media(max-width:700px){.deco{display:none}}
+.hrow{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;font-size:14px;color:#cfe7da;position:relative}
+.hrow b{color:#fff;font-variant-numeric:tabular-nums;white-space:nowrap}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;font-weight:800;font-size:13px;background:#ffffff22;color:#fff}
+.badge.open{background:#43e08b2e;color:#7ff0b0}.badge.closed{background:#f2c14e2e;color:var(--gold)}.badge.settled{background:#ffffff2e}
+.opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;position:relative}
+@media(max-width:600px){.opts{grid-template-columns:1fr}}
+.opt{text-align:left;border-radius:16px;padding:16px;border:2px solid #ffffff2a;background:#0000003a;color:#fff;display:grid;gap:6px;transition:transform .15s,border-color .15s,background .15s}
+.opt:hover{border-color:#ffffff70;transform:translateY(-2px)}
+.opt.sel{border-color:var(--gold);background:#f2c14e22;box-shadow:0 0 0 4px #f2c14e33}
+.opt.res{border-color:#43e08b;box-shadow:0 0 0 4px #43e08b44}
+.opt .nm{font-weight:800;font-size:20px}
+.opt .od{font-weight:800;font-size:clamp(30px,4vw,40px);color:var(--gold);line-height:1}
+.opt .meta{font-size:13px;color:#cfe7da}
+.bar{display:block;height:6px;border-radius:9px;background:#ffffff22;overflow:hidden}.bar i{display:block;height:100%;background:var(--gold);transition:width .4s}
+.betbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:16px;position:relative}
+.amt{display:flex;align-items:center;gap:6px;background:#00000055;border:1px solid #ffffff38;border-radius:12px;padding:0 12px;min-height:50px}
+.amt input{width:96px;border:0;background:transparent;font-size:20px;font-weight:800;color:#fff;outline:none}
+.amt span{color:#cfe7da;font-weight:700}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{width:46px;height:46px;border-radius:50%;border:3px dashed #ffffffaa;font-weight:800;font-size:12px;color:#fff;background:var(--red);box-shadow:0 3px 0 #0006;padding:0}
+.chip.k1{background:#e8ecea;color:#14231b;border-color:#14231b66}.chip.k2{background:var(--red)}.chip.k3{background:var(--blk)}.chip.k4{background:var(--gold);color:#2a1c00;border-color:#2a1c0066}.chip.k5{background:#1c6fd1}
+.chip.t{background:#ffffff1f;border-style:solid;border-color:#ffffff44}
+.pot{flex-basis:100%;font-size:15px;color:#cfe7da}.pot b{color:var(--gold)}
+.felt .btn.gold{min-height:50px;font-size:16px}
+.tw{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{text-align:left;font-weight:800;color:var(--mute);font-size:13px;padding:8px;border-bottom:1px solid var(--line)}
+.tbl td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl tr.ban td{opacity:.6}
+.tag{display:inline-block;padding:2px 9px;border-radius:999px;font-weight:800;font-size:13px;background:var(--panel2);white-space:nowrap}
+.tag.won{color:var(--win);background:color-mix(in srgb,var(--win) 16%,transparent)}
+.tag.lost{color:var(--lose);background:color-mix(in srgb,var(--lose) 14%,transparent)}
+.tag.open{color:var(--goldt);background:color-mix(in srgb,var(--gold) 20%,transparent)}
+.rn{display:inline-grid;place-items:center;min-width:28px;height:28px;padding:0 4px;border-radius:50%;font-weight:800;font-size:13px;color:#fff;background:var(--blk);border:1px solid #ffffff30}
+.rn.red{background:var(--red)}.rn.green{background:#0f8a4f}
+.rgrid{display:grid;gap:22px;align-items:center;position:relative}
+@media(min-width:760px){.rgrid{grid-template-columns:minmax(0,320px) minmax(0,1fr)}}
+.wheelwrap{position:relative;width:min(320px,84vw);aspect-ratio:1;margin:0 auto}
+.wheel{width:100%;height:100%;transition:transform 5.2s cubic-bezier(.12,.67,.1,1);filter:drop-shadow(0 14px 18px #0008)}
+.wheel svg{width:100%;height:100%;display:block}
+.pointer{position:absolute;left:50%;top:-6px;width:0;height:0;transform:translateX(-50%);border:13px solid transparent;border-top:22px solid var(--gold);filter:drop-shadow(0 2px 2px #0008);z-index:2}
+.ball{position:absolute;left:50%;top:12.6%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff,#bbb);box-shadow:0 2px 4px #0009;z-index:2}
+.wres{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:27%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;font-family:Unbounded;font-weight:800;font-size:clamp(20px,5vw,30px);color:#fff;background:#0b4a31;border:3px solid var(--gold);z-index:2}
+.wres.red{background:var(--red)}.wres.black{background:var(--blk)}.wres.green{background:#0f8a4f}
+.board{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}
+@media(min-width:1150px){.board{grid-template-columns:repeat(9,minmax(0,1fr))}}
+.cell{min-height:42px;border-radius:9px;border:2px solid #ffffff22;color:#fff;font-weight:800;background:var(--blk);padding:0}
+.cell.red{background:var(--red)}.cell.green{background:#0f8a4f;grid-column:1/-1}
+.cell.sel,.rc.sel{border-color:var(--gold);box-shadow:0 0 0 3px #f2c14e88}
+.rcs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.rc{min-height:50px;border-radius:12px;border:2px solid #ffffff2a;color:#fff;font-weight:800;font-size:16px}
+.rc.red{background:var(--red)}.rc.black{background:var(--blk)}
+.hist{display:flex;gap:5px;flex-wrap:wrap;margin-top:12px;min-height:28px;align-items:center;font-size:13px;color:#cfe7da}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
+.stat{background:var(--panel2);border-radius:12px;padding:12px 14px;display:grid;gap:2px}
+.stat span{font-size:13px;color:var(--mute)}.stat b{font-size:18px;line-height:1.2;overflow-wrap:anywhere}
+.filt{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.filt .btn.on{background:var(--ink);color:var(--bg)}
+.lead{margin:0;padding:0;list-style:none;counter-reset:l}
+.lead li{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);counter-increment:l}
+.lead li span::before{content:counter(l) ". ";color:var(--mute);font-weight:800}
+.lead li b{white-space:nowrap;color:var(--goldt)}
+.two{display:grid;gap:18px}@media(min-width:1100px){.two{grid-template-columns:minmax(0,1fr) 300px}}
+#chatbox{display:none;flex-direction:column;padding:0;height:calc(100dvh - 190px);min-height:380px;position:sticky;top:84px;overflow:hidden}
+#chatbox.show{display:flex}
+@media(min-width:1000px){#chatbox{height:min(80vh,760px)}}
+.chd{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}
+.chd h2{margin:0;font-size:17px}
+#msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.msg{padding:8px 12px;border-radius:14px 14px 14px 4px;background:var(--panel2);max-width:92%;align-self:flex-start}
+.msg.mine{align-self:flex-end;border-radius:14px 14px 4px 14px;background:color-mix(in srgb,#17804f 26%,var(--panel))}
+.mh{display:flex;gap:8px;align-items:baseline;font-size:13px}.mh time{color:var(--mute);font-size:12px}
+.mt{overflow-wrap:anywhere;white-space:pre-wrap}
+.x{margin-left:auto;background:none;border:0;color:var(--lose);font-size:18px;line-height:1;padding:0 4px;min-height:24px}
+.chatin{display:flex;gap:8px;padding:10px;border-top:1px solid var(--line)}
+.in{min-height:44px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);padding:0 12px;font-size:16px;width:100%}
+select.in{padding-right:6px}
+.form{display:grid;gap:12px;margin-top:12px}
+.form label{display:grid;gap:4px;font-weight:700;font-size:14px}
+.form .chk{display:flex;gap:8px;align-items:center;font-weight:600}
+.chk input{width:20px;height:20px}
+.err{color:var(--lose);margin:0;min-height:1em;font-weight:700;font-size:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ov{position:fixed;inset:0;background:#000b;display:grid;place-items:center;z-index:50;padding:16px;overflow-y:auto}
+.md{width:min(430px,100%);background:var(--panel);border-radius:20px;padding:22px;border:1px solid var(--line);box-shadow:0 30px 60px -20px #000}
+.md h3{font-size:22px}
+.bigbal{font-size:34px;font-weight:800;color:var(--goldt);margin:6px 0 14px}
+.olist{list-style:none;padding:0;margin:10px 0;display:grid;gap:8px}.olist li{display:flex;gap:10px;align-items:center}
+.log{list-style:none;padding:0;margin:0;font-size:14px;max-height:360px;overflow-y:auto}
+.log li{padding:7px 0;border-bottom:1px solid var(--line)}.log time{color:var(--mute);margin-right:6px;white-space:nowrap}
+.odds{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media(max-width:520px){.odds{grid-template-columns:1fr}}
+#toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,140%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:12px;font-weight:700;z-index:60;transition:transform .25s;max-width:min(92vw,460px);text-align:center}
+#toast.show{transform:translate(-50%,0)}#toast.bad{background:var(--lose);color:#fff}
+footer{max-width:1320px;margin:0 auto;padding:10px max(3vw,12px) 40px;font-size:13px;color:var(--mute)}
+@media(max-width:600px){.hsm{display:none}header.top .sp{display:none}header.top{justify-content:space-between;gap:6px;padding-inline:10px}header.top .btn{padding:0 12px}.ico{width:40px!important;padding:0!important}.logo{font-size:19px}.pill{padding:0 10px}table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal;color:var(--mute);font-size:12px}.stack td:empty{display:none}}
+@media(prefers-reduced-motion:reduce){.wheel{transition-duration:.4s}.dot{animation:none}.opt{transition:none}}
+</style><script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script></head>
+<body>
+<header class="top">
+  <a class="logo" href="#k2" aria-label="K2BET"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#d7263d"/><circle cx="16" cy="16" r="11" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="4 4"/><circle cx="16" cy="16" r="7" fill="#f2c14e"/></svg>K2<b>BET</b></a>
+  <span class="sp"></span>
+  <button class="pill" data-act="online" title="Хто зараз на сайті"><i class="dot"></i><span><b id="onN">1</b><span class="hsm"> онлайн</span></span></button>
+  <div id="acct"></div>
+  <button class="btn ghost ico" data-act="theme" aria-label="Світла / темна тема" title="Світла / темна тема"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg></button>
+</header>
+<nav class="tabs" aria-label="Розділи">
+  <a href="#k2">Буде К2?</a><a href="#roulette">Рулетка</a><a href="#bets">Усі ставки</a><a href="#chat" class="tab-chat">Чат</a><a href="#admin" class="tab-admin" hidden>Адмін</a>
+</nav>
+<div id="offline" hidden>Демо-режим: дані зберігаються лише в цій вкладці. Відкрий сайт за посиланням на claude.ai, щоб грати разом з іншими.</div>
+
+<div class="layout">
+<main>
+<section class="view" id="v-k2">
+  <div class="felt">
+    <svg class="deco" id="deco" viewBox="0 0 200 170" aria-hidden="true"></svg>
+    <div class="hrow"><span class="badge" id="k2st">Ставки відкрито</span><span>До кінця місяця: <b id="k2cd">—</b></span></div>
+    <h1>В цьому місяці буде К2?</h1>
+    <p class="sub"><span id="k2month"></span> · ставка від 10 до 5 000 ₴ · <span id="k2stats">0 ставок</span></p>
+    <div class="opts" id="k2opts"></div>
+    <div class="betbar">
+      <label class="amt"><input id="k2amt" type="number" inputmode="numeric" min="10" max="5000" step="10" value="100" aria-label="Сума ставки"><span>₴</span></label>
+      <div class="chips">
+        <button class="chip k1" data-act="chip" data-for="#k2amt" data-v="50">50</button><button class="chip k2" data-act="chip" data-for="#k2amt" data-v="100">100</button><button class="chip k3" data-act="chip" data-for="#k2amt" data-v="500">500</button><button class="chip k4" data-act="chip" data-for="#k2amt" data-v="1000">1K</button><button class="chip k5" data-act="chip" data-for="#k2amt" data-v="5000">5K</button><button class="chip t" data-act="chip" data-for="#k2amt" data-v="half">½</button><button class="chip t" data-act="chip" data-for="#k2amt" data-v="x2">×2</button>
+      </div>
+      <button class="btn gold" id="btnBet" data-act="bet">Поставити</button>
+      <div class="pot" id="k2pot"></div>
+    </div>
+  </div>
+  <div class="card"><h2>Мої ставки цього місяця</h2><div id="k2mine"></div></div>
+  <div class="card"><h2>Ставки гравців на К2 — наживо</h2><div id="k2feed"></div></div>
+  <div class="card sm"><h2>Правила</h2><p class="mute" style="margin:0">Обери варіант, введи суму від 10 до 5 000 ₴ і натисни «Поставити». Коефіцієнт фіксується в момент ставки. Наприкінці місяця адміністратор оголошує результат — виграш (ставка × коефіцієнт) автоматично зараховується на баланс.</p></div>
+</section>
+
+<section class="view" id="v-roulette" hidden>
+  <div class="felt">
+    <div class="rgrid">
+      <div class="wheelwrap"><div class="pointer"></div><div class="wheel" id="wheel"></div><div class="ball" id="ball" hidden></div><div class="wres" id="wres">?</div></div>
+      <div>
+        <h1 style="font-size:clamp(26px,4vw,40px);margin-top:0">Рулетка</h1>
+        <p class="sub">Число — виграш ×36 · Червоне або чорне — ×2 · Зеро зелене</p>
+        <div class="board" id="board"></div>
+        <div class="rcs"><button class="rc red" data-act="rpick" data-v="red">Червоне ×2</button><button class="rc black" data-act="rpick" data-v="black">Чорне ×2</button></div>
+        <div class="betbar">
+          <label class="amt"><input id="ramt" type="number" inputmode="numeric" min="10" max="5000" step="10" value="100" aria-label="Сума ставки"><span>₴</span></label>
+          <div class="chips"><button class="chip k2" data-act="chip" data-for="#ramt" data-v="100">100</button><button class="chip k3" data-act="chip" data-for="#ramt" data-v="500">500</button><button class="chip k4" data-act="chip" data-for="#ramt" data-v="1000">1K</button><button class="chip k5" data-act="chip" data-for="#ramt" data-v="5000">5K</button></div>
+          <button class="btn gold" id="btnSpin" data-act="spin">Крутити</button>
+          <div class="pot" id="rpot"></div>
+        </div>
+        <div class="hist" id="rhist"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card"><h2>Мої спіни</h2><div id="rmine"></div></div>
+</section>
+
+<section class="view" id="v-bets" hidden>
+  <div class="card"><h2>Статистика казино</h2><div class="stats" id="bstats"></div><p class="mute sm" style="margin:0">Зареєстровано гравців: <b id="regN">0</b></p></div>
+  <div class="two">
+    <div class="card"><h2>Хто, скільки і на що поставив</h2>
+      <div class="filt"><button class="btn sm on" data-act="bf" data-v="all">Усі</button><button class="btn sm" data-act="bf" data-v="k2">К2</button><button class="btn sm" data-act="bf" data-v="roulette">Рулетка</button><button class="btn sm" data-act="bf" data-v="mine">Мої</button></div>
+      <div id="btable"></div></div>
+    <div class="card"><h2>Топ балансів</h2><div id="leader"></div></div>
+  </div>
+</section>
+
+<section class="view" id="v-admin" hidden>
+  <div class="card" id="admLock"><h2>Адмін-панель</h2><p class="mute">Увійди у свій акаунт гравця, щоб керувати казино.</p><button class="btn gold" data-act="login">Вхід</button></div>
+  <div class="view" id="admBody">
+    <div class="card"><h2>Ринок «Буде К2?»</h2><p class="mute" id="admMk"></p>
+      <div class="stats" id="admSum"></div>
+      <form id="admOdds" class="form"><div class="odds"><label>Буде ×<input class="in" id="od_yes" inputmode="decimal"></label><label>Не буде ×<input class="in" id="od_no" inputmode="decimal"></label><label>Можливо ×<input class="in" id="od_maybe" inputmode="decimal"></label></div><div class="row"><button class="btn gold">Зберегти коефіцієнти</button><button type="button" class="btn" data-act="mkst" data-v="closed">Закрити прийом</button><button type="button" class="btn" data-act="mkst" data-v="open">Відкрити прийом</button></div></form>
+      <p class="sm" style="margin:16px 0 8px"><b>Оголосити результат місяця:</b></p>
+      <div class="row"><button class="btn" data-act="settle" data-v="yes">Буде</button><button class="btn" data-act="settle" data-v="no">Не буде</button><button class="btn" data-act="settle" data-v="maybe">Можливо</button><button class="btn red" data-act="settle" data-v="refund">Повернути всі ставки</button></div>
+    </div>
+    <div class="card"><h2>Баланс гравця</h2><p class="mute sm">Можна змінити будь-кому, зокрема собі.</p>
+      <div class="form"><label>Гравець<select class="in" id="admP"></select></label><label>Сума, ₴<input class="in" id="admAmt" type="number" inputmode="numeric" min="0" value="1000"></label>
+      <div class="row"><button class="btn gold" data-act="abal" data-v="add">+ Додати</button><button class="btn" data-act="abal" data-v="sub">− Зняти</button><button class="btn" data-act="abal" data-v="set">Встановити</button></div></div></div>
+    <div class="card"><h2>Гравці</h2><div class="tw" id="admPlayers"></div></div>
+    <div class="card"><h2>Журнал дій</h2><div id="admLog"></div></div>
+  </div>
+</section>
+</main>
+
+<aside class="card" id="chatbox" aria-label="Чат">
+  <div class="chd"><h2>Чат</h2><span class="mute sm"><i class="dot" style="display:inline-block;margin-right:6px"></i><span id="onN2">1</span> онлайн</span></div>
+  <div id="msgs" aria-live="polite"></div>
+  <form class="chatin" id="chatForm"><input class="in" id="chatIn" maxlength="300" autocomplete="off" placeholder="Написати в чат…" aria-label="Повідомлення"><button class="btn gold">→</button></form>
+</aside>
+</div>
+
+<footer>K2BET — розважальний сайт з ігровою валютою. Гривні тут умовні: їх не можна поповнити реальними грошима чи вивести. Лише 18+. Грай відповідально.</footer>
+<div class="ov" id="ov" hidden></div>
+<div id="toast" role="status"></div>
+
+<script>
+{
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>Math.round(+n||0).toLocaleString('uk-UA')+' ₴';
+const MON=['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'];
+const NOW=new Date(),KEY=NOW.getFullYear()+'-'+String(NOW.getMonth()+1).padStart(2,'0'),MONTH=MON[NOW.getMonth()]+' '+NOW.getFullYear();
+const MIN=10,MAX=5000,PICKS={yes:'Буде',no:'Не буде',maybe:'Можливо'},DEF={yes:2.5,no:1.6,maybe:4};
+const ORDER=[0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
+const REDS=new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
+const colorOf=n=>n===0?'green':REDS.has(n)?'red':'black';
+const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}}};
+const S={db:null,room:null,uid:null,admin:false,offline:false,ready:false,logged:false,session:false,players:{},bets:[],myBets:[],chat:[],log:[],markets:{},online:[],view:'k2'};
+const me=()=>S.players[S.uid];
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const rnd=n=>{const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n};
+const newId=()=>Date.now().toString(36)+rnd(1e9).toString(36);
+const t2=ts=>new Date(ts).toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'});
+const dt=ts=>new Date(ts).toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit'})+' '+t2(ts);
+const pl=(n,a,b,c)=>{const m=n%10,h=n%100;return n+' '+(m===1&&h!==11?a:m>=2&&m<=4&&(h<12||h>14)?b:c)};
+const stat=(l,v)=>`<div class="stat"><span>${esc(l)}</span><b>${esc(v)}</b></div>`;
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let tt;function toast(m,bad){const e=$('#toast');e.textContent=m;e.className='show'+(bad?' bad':'');clearTimeout(tt);tt=setTimeout(()=>e.className='',3400)}
+
+/* ---------- дані: спільна база або локальне демо ---------- */
+const L={},subs={};
+const docsOf=s=>{const a=s?.docs||(Array.isArray(s)?s:[]);return a.map(d=>typeof d?.data==='function'?{id:d.id,...d.data()}:d)};
+const ref=(c,id)=>S.db.collection(c).doc(id);
+const fire=c=>(subs[c]||[]).forEach(f=>f());
+async function setDoc(c,id,o){if(S.db)return ref(c,id).set(o);(L[c]=L[c]||{})[id]=o;fire(c)}
+async function upd(c,id,o){if(S.db)return ref(c,id).update(o);(L[c]=L[c]||{})[id]={...L[c][id],...o};fire(c)}
+async function del(c,id){if(S.db)return ref(c,id).delete();delete(L[c]||{})[id];fire(c)}
+async function getDoc(c,id){if(S.db){const s=await ref(c,id).get();if(!s)return null;if(typeof s.data==='function')return s.exists===false?null:(s.data()||null);return s}return L[c]?.[id]||null}
+function sub(c,o,fn){
+  if(S.db){let q=S.db.collection(c);if(o.where)q=q.where(...o.where);if(o.order)q=q.orderBy(o.order,'desc');if(o.limit)q=q.limit(o.limit);
+    return q.onSnapshot(s=>fn(docsOf(s)),e=>{console.warn(c,e);fn(null)})}
+  const run=()=>{let a=Object.entries(L[c]||{}).map(([id,d])=>({id,...d}));if(o.where)a=a.filter(d=>d[o.where[0]]===o.where[2]);if(o.order)a.sort((x,y)=>(y[o.order]||0)-(x[o.order]||0));if(o.limit)a=a.slice(0,o.limit);fn(a)};
+  (subs[c]=subs[c]||[]).push(run);run();
+}
+async function sha(s){try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){let h=5381;for(const ch of s)h=((h*33)^ch.charCodeAt(0))>>>0;return'x'+h.toString(16)}}
+async function log(text){try{await setDoc('log',newId(),{text:String(text).slice(0,300),uid:S.uid,ts:Date.now()})}catch(e){}}
+
+/* ---------- модальні вікна ---------- */
+function modal(html){const o=$('#ov');o.innerHTML=`<div class="md" role="dialog" aria-modal="true">${html}</div>`;o.hidden=false;const f=o.querySelector('input:not([type=checkbox])');f&&f.focus()}
+function close(){$('#ov').hidden=true;$('#ov').innerHTML=''}
+$('#ov').addEventListener('click',e=>{if(e.target.id==='ov'||e.target.closest('[data-close]'))close()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#ov').hidden)close()});
+function ask(text){return new Promise(res=>{modal(`<h3>Підтвердження</h3><p>${esc(text)}</p><div class="row"><button class="btn" data-ans="0">Скасувати</button><button class="btn gold" data-ans="1">Так, підтверджую</button></div>`);$$('#ov [data-ans]').forEach(b=>b.onclick=()=>{close();res(b.dataset.ans==='1')})})}
+function formErr(id,fn){$(id).onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector('button:not([type=button])');b.disabled=true;try{await fn(new FormData(e.target))}catch(x){const er=$('#fErr');if(er)er.textContent=x.message}b.disabled=false}}
+
+function openReg(){
+  if(me()){openLogin();return}
+  modal(`<h3>Реєстрація в K2BET</h3><p class="mute sm">Створи гравця. Бонус чекає в «Касі» — введи промокод.</p><form id="fReg" class="form"><label>Нікнейм<input class="in" name="nick" maxlength="16" autocomplete="username" required></label><label>Пароль<input class="in" type="password" name="pw" autocomplete="new-password" required></label><label>Повтори пароль<input class="in" type="password" name="pw2" autocomplete="new-password" required></label><label class="chk"><input type="checkbox" name="age" required> Мені виповнилося 18 років</label><p class="err" id="fErr"></p><button class="btn gold">Зареєструватися</button></form><button class="link" data-act="login">Вже є акаунт? Увійти</button>`);
+  formErr('#fReg',async f=>{await register(f.get('nick'),f.get('pw'),f.get('pw2'));close();toast('Вітаємо в K2BET! Відкрий «Касу», щоб ввести промокод')});
+}
+function openLogin(){
+  if(S.ready&&!me()){openReg();return}
+  modal(`<h3>Вхід</h3><form id="fLog" class="form"><label>Нікнейм<input class="in" name="nick" autocomplete="username" value="${esc(me()?.nick||'')}" required></label><label>Пароль<input class="in" type="password" name="pw" autocomplete="current-password" required></label><p class="err" id="fErr"></p><button class="btn gold">Увійти</button></form><div class="row" style="justify-content:space-between"><button class="link" data-act="reg">Реєстрація</button><button class="link" data-act="reset">Забув пароль?</button></div>`);
+  const p=$('#ov [name=pw]');if(me())p.focus();
+  formErr('#fLog',async f=>{await login(f.get('nick'),f.get('pw'));close();toast('З поверненням, '+me().nick+'!')});
+}
+function openReset(){
+  if(!me()){openReg();return}
+  modal(`<h3>Новий пароль</h3><p class="mute sm">Акаунт <b>${esc(me().nick)}</b> прив'язаний до твого профілю Claude, тож пароль можна встановити заново.</p><form id="fRes" class="form"><label>Новий пароль<input class="in" type="password" name="pw" autocomplete="new-password" required></label><label>Повтори<input class="in" type="password" name="pw2" autocomplete="new-password" required></label><p class="err" id="fErr"></p><button class="btn gold">Зберегти та увійти</button></form>`);
+  formErr('#fRes',async f=>{const pw=String(f.get('pw')||'');if(pw.length<4)throw new Error('Пароль — щонайменше 4 символи');if(pw!==f.get('pw2'))throw new Error('Паролі не збігаються');await setDoc('data/users/'+S.uid,'auth',{hash:await sha(S.uid+'|'+pw)});startSession();close();toast('Пароль змінено')});
+}
+function openCash(){
+  if(!guard())return;const m=me(),my=S.bets.filter(b=>b.uid===S.uid);
+  const st=my.reduce((s,b)=>s+(+b.amount||0),0),w=my.reduce((s,b)=>s+(b.status==='won'||b.status==='refund'?+b.payout||0:0),0);
+  modal(`<h3>Каса</h3><p class="mute sm" style="margin:0">Гравець <b>${esc(m.nick)}</b></p><div class="bigbal">${esc(fmt(m.balance))}</div><div class="stats">${stat('Поставлено',fmt(st))}${stat('Виграно',fmt(w))}</div><form id="fPromo" class="form"><label>Промокод<input class="in" name="code" autocomplete="off" placeholder="Введи промокод"></label><p class="err" id="fErr"></p><button class="btn gold">Активувати</button></form><button class="btn ghost w" data-close>Закрити</button>`);
+  formErr('#fPromo',async f=>{await redeem(f.get('code'));close();toast('Промокод активовано: +5 000 ₴ на баланс!')});
+}
+function openOnline(){
+  const pst=p=>p?.presence||p?.state||p?.data||p||{};
+  const arr=S.online.length?S.online:[{you:true,nick:S.logged&&me()?me().nick:'Гість'}];
+  modal(`<h3>Зараз на сайті: ${arr.length}</h3><ul class="olist">${arr.map(p=>`<li><i class="dot"></i>${esc(pst(p).nick||'Гість')}${p.you||p.self||p.isSelf?' <span class="mute">(ти)</span>':''}</li>`).join('')}</ul><p class="mute sm">Зареєстровано гравців: ${Object.keys(S.players).length}</p><button class="btn w" data-close>Закрити</button>`);
+}
+
+/* ---------- акаунт ---------- */
+function startSession(){S.session=true;ls.set('k2in_'+S.uid,'1');S.logged=true;renderAll();pushPresence()}
+async function register(nick,pw,pw2){
+  nick=String(nick||'').trim();pw=String(pw||'');
+  if(!/^[\p{L}\p{N}_. -]{3,16}$/u.test(nick))throw new Error('Нік: 3–16 літер, цифр або _ . -');
+  if(pw.length<4)throw new Error('Пароль — щонайменше 4 символи');
+  if(pw!==pw2)throw new Error('Паролі не збігаються');
+  if(me())throw new Error('У тебе вже є акаунт — увійди');
+  if(Object.values(S.players).some(p=>(p.nick||'').toLowerCase()===nick.toLowerCase()))throw new Error('Цей нік уже зайнятий');
+  await setDoc('data/users/'+S.uid,'auth',{hash:await sha(S.uid+'|'+pw)});
+  const p={nick,balance:0,promo:false,banned:false,created:Date.now()};
+  await setDoc('players',S.uid,p);S.players[S.uid]={id:S.uid,...p};
+  startSession();log(`${nick} зареєструвався`);
+}
+async function login(nick,pw){
+  const m=me();if(!m)throw new Error('Акаунта ще немає — зареєструйся');
+  const a=await getDoc('data/users/'+S.uid,'auth');
+  if(String(nick||'').trim().toLowerCase()!==(m.nick||'').toLowerCase()||!a||a.hash!==await sha(S.uid+'|'+String(pw||'')))throw new Error('Невірний нік або пароль');
+  startSession();
+}
+function logout(){S.session=false;ls.set('k2in_'+S.uid,null);S.logged=false;renderAll();pushPresence();toast('Ти вийшов з акаунта')}
+function guard(){
+  if(!S.ready){toast('Зачекай, дані ще завантажуються',1);return false}
+  if(!me()){openReg();return false}if(!S.logged){openLogin();return false}
+  if(me().banned){toast('Твій акаунт заблоковано адміністратором',1);return false}return true;
+}
+async function addBalance(d){const m=me();const nb=Math.max(0,Math.round((+m.balance||0)+d));m.balance=nb;await upd('players',S.uid,{balance:nb});renderHeader()}
+async function redeem(code){
+  if(!guard())return;const c=String(code||'').trim().toUpperCase().replace(/К/g,'K').replace(/Е/g,'E').replace(/А/g,'A').replace(/\s/g,'');
+  if(c!=='SEAK2')throw new Error('Невірний промокод');
+  const m=me();if(m.promo)throw new Error('Цей промокод уже використано');
+  const nb=(+m.balance||0)+5000;m.promo=true;m.balance=nb;
+  await upd('players',S.uid,{promo:true,balance:nb});log(`${m.nick} активував промокод SEAK2 (+5 000 ₴)`);renderAll();
+}
+const claiming=new Set();
+async function claim(){
+  if(!me())return;
+  for(const b of S.myBets){
+    if((b.status==='won'||b.status==='refund')&&!b.claimed&&+b.payout>0&&!claiming.has(b.id)){
+      claiming.add(b.id);
+      try{await upd('bets',b.id,{claimed:true});await addBalance(+b.payout);toast(b.status==='won'?`К2: твоя ставка зіграла! +${fmt(b.payout)}`:`Ставку повернено: +${fmt(b.payout)}`)}catch(e){claiming.delete(b.id)}
+    }
+  }
+}
+function readAmt(sel){
+  const v=Math.floor(+$(sel).value);
+  if(!(v>=MIN)){toast(`Мінімальна ставка — ${fmt(MIN)}`,1);return 0}
+  if(v>MAX){toast(`Максимальна ставка — ${fmt(MAX)}`,1);return 0}
+  if(v>(+me().balance||0)){toast('Недостатньо коштів. Введи промокод у «Касі»',1);openCash();return 0}return v;
+}
+function chip(sel,v){const i=$(sel),cur=+i.value||0;let n=v==='half'?Math.floor(cur/2):v==='x2'?cur*2:+v;i.value=Math.min(MAX,Math.max(MIN,n));updPot();updR()}
+
+/* ---------- гра «Буде К2?» ---------- */
+let selPick=null;
+function mk(){const m=S.markets[KEY]||{};return{status:m.status||'open',odds:{...DEF,...(m.odds||{})},result:m.result||null}}
+async function betK2(){
+  if(!guard())return;const M=mk();
+  if(M.status!=='open'){toast('Прийом ставок на цей місяць закрито',1);return}
+  if(!selPick){toast('Обери: Буде, Не буде чи Можливо',1);return}
+  const amt=readAmt('#k2amt');if(!amt)return;const odds=+M.odds[selPick],pick=selPick;
+  $('#btnBet').disabled=true;
+  try{await addBalance(-amt);await setDoc('bets',newId(),{uid:S.uid,nick:me().nick,game:'k2',market:KEY,pick,amount:amt,odds,status:'open',payout:0,claimed:false,ts:Date.now()});
+    toast(`Ставку прийнято: ${fmt(amt)} на «${PICKS[pick]}» ×${odds.toFixed(2)}`)}catch(e){toast('Не вдалося зробити ставку',1)}
+  $('#btnBet').disabled=mk().status!=='open';
+}
+function updPot(){const M=mk(),a=+$('#k2amt').value||0;
+  $('#k2pot').innerHTML=selPick?`Можливий виграш: <b>${esc(fmt(a*M.odds[selPick]))}</b>`:'Обери варіант, введи суму і став';
+  $('#btnBet').textContent=selPick?`Поставити на «${PICKS[selPick]}»`:'Поставити'}
+function pickLabel(b){if(b.game==='k2')return PICKS[b.pick]||'—';if(b.pick==='red')return'Червоне';if(b.pick==='black')return'Чорне';if(String(b.pick)[0]==='n')return'Число '+String(b.pick).slice(1);return'—'}
+function resLabel(b){
+  if(b.status==='open')return'<span class="tag open">Очікує</span>';
+  if(b.status==='refund')return`<span class="tag">Повернено ${esc(fmt(b.payout))}</span>`;
+  const rr=b.game==='roulette'?`<span class="rn ${colorOf(+b.result)}">${esc(b.result)}</span> `:'';
+  return rr+(b.status==='won'?`<span class="tag won">+${esc(fmt(b.payout))}</span>`:'<span class="tag lost">Програш</span>');
+}
+function table(list,user){
+  return`<div class="tw"><table class="tbl stack"><thead><tr><th>Час</th>${user?'<th>Гравець</th>':''}<th>Гра</th><th>На що</th><th class="r">Сума</th><th class="r">Коеф.</th><th>Результат</th></tr></thead><tbody>${list.map(b=>`<tr><td>${esc(dt(b.ts))}</td>${user?`<td><b>${esc(b.nick)}</b></td>`:''}<td>${b.game==='k2'?'Буде К2?':'Рулетка'}</td><td>${esc(pickLabel(b))}</td><td class="r">${esc(fmt(b.amount))}</td><td class="r">×${esc((+b.odds||0).toFixed(2))}</td><td>${resLabel(b)}</td></tr>`).join('')}</tbody></table></div>`;
+}
+function renderK2(){
+  const M=mk(),bets=S.bets.filter(b=>b.game==='k2'&&b.market===KEY),pool={yes:0,no:0,maybe:0};
+  bets.forEach(b=>{if(b.pick in pool)pool[b.pick]+=+b.amount||0});const tot=pool.yes+pool.no+pool.maybe;
+  const st=$('#k2st');st.className='badge '+M.status;
+  st.textContent=M.status==='open'?'● Ставки відкрито':M.status==='closed'?'Прийом ставок закрито':'Результат: '+(M.result==='refund'?'ставки повернуто':PICKS[M.result]||'—');
+  $('#k2month').textContent=MONTH;$('#k2stats').textContent=`${pl(bets.length,'ставка','ставки','ставок')} · ${fmt(tot)} у банку`;
+  $('#k2opts').innerHTML=Object.keys(PICKS).map(k=>{const sh=tot?Math.round(pool[k]/tot*100):0;
+    return`<button class="opt${selPick===k?' sel':''}${M.result===k?' res':''}" data-act="pick" data-v="${k}" aria-pressed="${selPick===k}"><span class="nm">${PICKS[k]}</span><span class="od">×${(+M.odds[k]).toFixed(2)}</span><span class="meta">У пулі ${esc(fmt(pool[k]))} · ${sh}%</span><span class="bar"><i style="width:${sh}%"></i></span></button>`}).join('');
+  updPot();$('#btnBet').disabled=M.status!=='open';
+  const mine=bets.filter(b=>b.uid===S.uid);
+  $('#k2mine').innerHTML=mine.length?table(mine,false):'<p class="mute">Ти ще не ставив цього місяця.</p>';
+  $('#k2feed').innerHTML=bets.length?table(bets.slice(0,30),true):'<p class="mute">Поки що ніхто не поставив. Будь першим!</p>';
+}
+
+/* ---------- рулетка ---------- */
+let rSel=null,spinning=false,rot=0;
+function wheelSVG(){
+  const c=150,R=146,r2=104,seg=360/37,COL={red:'#d7263d',black:'#16191d',green:'#0f8a4f'};
+  const pt=(a,r)=>{const t=a*Math.PI/180;return(c+r*Math.sin(t)).toFixed(2)+' '+(c-r*Math.cos(t)).toFixed(2)};
+  let s=`<svg viewBox="0 0 300 300" aria-hidden="true"><defs><radialGradient id="gk"><stop offset="0" stop-color="#ffe7a1"/><stop offset="1" stop-color="#b8861f"/></radialGradient></defs><circle cx="150" cy="150" r="149" fill="#4a2e0e"/>`;
+  ORDER.forEach((n,i)=>{const a0=i*seg-seg/2,a1=i*seg+seg/2;
+    s+=`<path d="M${pt(a0,R)}A${R} ${R} 0 0 1 ${pt(a1,R)}L${pt(a1,r2)}A${r2} ${r2} 0 0 0 ${pt(a0,r2)}Z" fill="${COL[colorOf(n)]}" stroke="#d9b45a" stroke-width=".8"/><text x="150" y="${150-R+17}" transform="rotate(${(i*seg).toFixed(2)} 150 150)" text-anchor="middle" font-size="12" font-weight="800" fill="#fff" font-family="Manrope,sans-serif">${n}</text>`});
+  s+=`<circle cx="150" cy="150" r="${r2}" fill="#0b4a31" stroke="#d9b45a" stroke-width="2"/>`;
+  for(let i=0;i<8;i++)s+=`<line x1="150" y1="150" x2="${pt(i*45,92).split(' ')[0]}" y2="${pt(i*45,92).split(' ')[1]}" stroke="#d9b45a" stroke-width="4" stroke-linecap="round"/>`;
+  return s+`<circle cx="150" cy="150" r="30" fill="url(#gk)" stroke="#7a5512" stroke-width="2"/></svg>`;
+}
+function updR(){const a=+$('#ramt').value||0;if(!rSel){$('#rpot').textContent='Обери число на полі або колір';return}
+  const odds=rSel[0]==='n'?36:2,lbl=pickLabel({game:'roulette',pick:rSel});$('#rpot').innerHTML=`Ставка на <b>${esc(lbl)}</b> · можливий виграш <b>${esc(fmt(a*odds))}</b>`}
+function renderRoulette(){
+  $$('.cell,.rc').forEach(b=>b.classList.toggle('sel',b.dataset.v===rSel));updR();
+  const all=S.bets.filter(b=>b.game==='roulette');
+  $('#rhist').innerHTML=all.length?'Останні: '+all.slice(0,16).map(b=>`<span class="rn ${colorOf(+b.result)}" title="${esc(b.nick)}">${esc(b.result)}</span>`).join(''):'Ще ніхто не крутив';
+  const mine=all.filter(b=>b.uid===S.uid).slice(0,20);
+  $('#rmine').innerHTML=mine.length?table(mine,false):'<p class="mute">Ти ще не крутив рулетку.</p>';
+}
+async function spin(){
+  if(spinning||!guard())return;if(!rSel){toast('Обери число або колір',1);return}
+  const amt=readAmt('#ramt');if(!amt)return;
+  spinning=true;const pick=rSel,btn=$('#btnSpin');btn.disabled=true;btn.textContent='Крутиться…';
+  $('#ball').hidden=true;const wr=$('#wres');wr.className='wres';wr.textContent='…';
+  try{
+    await addBalance(-amt);
+    const n=rnd(37),col=colorOf(n),i=ORDER.indexOf(n),seg=360/37,target=(360-i*seg)%360,cur=((rot%360)+360)%360;
+    rot+=360*6+((target-cur)+360)%360;$('#wheel').style.transform=`rotate(${rot}deg)`;
+    await wait(reduced?450:5300);
+    const odds=pick[0]==='n'?36:2,win=pick==='red'?col==='red':pick==='black'?col==='black':+pick.slice(1)===n,payout=win?amt*odds:0;
+    $('#ball').hidden=false;wr.className='wres '+col;wr.textContent=n;
+    if(win)await addBalance(payout);
+    await setDoc('bets',newId(),{uid:S.uid,nick:me().nick,game:'roulette',pick,amount:amt,odds,result:n,color:col,status:win?'won':'lost',payout,claimed:true,ts:Date.now()});
+    toast(win?`Випало ${n}! Виграш +${fmt(payout)}`:`Випало ${n} (${col==='red'?'червоне':col==='black'?'чорне':'зеро'}). Не пощастило`,!win);
+  }catch(e){toast('Помилка спіну, спробуй ще раз',1)}
+  spinning=false;btn.disabled=false;btn.textContent='Крутити';
+}
+
+/* ---------- ставки, чат, онлайн ---------- */
+let bf='all',chatInit=false,lastMsg=0;
+function renderBets(){
+  const all=S.bets,list=bf==='all'?all:bf==='mine'?all.filter(b=>b.uid===S.uid):all.filter(b=>b.game===bf);
+  const turn=all.reduce((s,b)=>s+(+b.amount||0),0),paid=all.reduce((s,b)=>s+(b.status==='won'?+b.payout||0:0),0);
+  const big=all.reduce((m,b)=>b.status==='won'&&+b.payout>m.p?{p:+b.payout,n:b.nick}:m,{p:0,n:''});
+  $('#bstats').innerHTML=stat('Ставок',all.length)+stat('Оборот',fmt(turn))+stat('Виплачено',fmt(paid))+stat('Найбільший виграш',big.p?fmt(big.p)+' · '+big.n:'—');
+  $$('[data-act=bf]').forEach(b=>b.classList.toggle('on',b.dataset.v===bf));
+  $('#btable').innerHTML=list.length?table(list.slice(0,120),true):'<p class="mute">Ставок ще немає.</p>';
+  const top=Object.values(S.players).filter(p=>!p.banned).sort((a,b)=>(+b.balance||0)-(+a.balance||0)).slice(0,10);
+  $('#leader').innerHTML=top.length?`<ol class="lead">${top.map(p=>`<li><span>${esc(p.nick||'—')}</span><b>${esc(fmt(p.balance))}</b></li>`).join('')}</ol>`:'<p class="mute">Гравців ще немає.</p>';
+  $('#regN').textContent=Object.keys(S.players).length;
+}
+function hue(s){let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))%360;return`light-dark(hsl(${h} 70% 30%),hsl(${h} 75% 70%))`}
+function renderChat(){
+  const box=$('#msgs'),bottom=box.scrollHeight-box.scrollTop-box.clientHeight<80;
+  box.innerHTML=S.chat.length?S.chat.map(m=>`<div class="msg${m.uid===S.uid?' mine':''}"><div class="mh"><b style="color:${hue(m.uid)}">${esc(m.nick)}</b><time>${esc(t2(m.ts))}</time>${S.admin&&S.logged?`<button class="x" data-act="delmsg" data-v="${esc(m.id)}" aria-label="Видалити повідомлення">×</button>`:''}</div><div class="mt">${esc(m.text)}</div></div>`).join(''):'<p class="mute c">Тут поки тихо. Привітайся першим!</p>';
+  if(bottom||!chatInit){box.scrollTop=box.scrollHeight;if(S.chat.length)chatInit=true}
+  $('#chatIn').placeholder=S.logged?'Написати в чат…':'Увійди, щоб писати в чат';
+}
+$('#chatForm').addEventListener('submit',async e=>{e.preventDefault();if(!guard())return;const i=$('#chatIn'),t=i.value.trim().slice(0,300);if(!t)return;
+  if(Date.now()-lastMsg<1500){toast('Не так швидко 🙂',1);return}lastMsg=Date.now();i.value='';
+  try{await setDoc('chat',newId(),{uid:S.uid,nick:me().nick,text:t,ts:Date.now()})}catch(x){i.value=t;toast('Повідомлення не надіслано',1)}});
+function renderOnline(){const n=Math.max(1,S.online.length);$('#onN').textContent=n;$('#onN2').textContent=n}
+function pushPresence(){try{S.room?.presence({nick:S.logged&&me()?me().nick:'Гість'})}catch(e){}}
+
+/* ---------- адмін ---------- */
+const admOk=()=>{if(!S.admin){toast('Немає прав адміністратора',1);return false}if(!S.logged){openLogin();return false}return true};
+const cleanMk=()=>{const m=mk();return{status:m.status,odds:m.odds,result:m.result}};
+let pSig='';
+function renderAdmin(){
+  $$('.tab-admin').forEach(e=>e.hidden=!S.admin);if(!S.admin)return;
+  $('#admLock').hidden=S.logged;$('#admBody').hidden=!S.logged;if(!S.logged)return;
+  const M=mk(),kb=S.bets.filter(b=>b.game==='k2'&&b.market===KEY&&b.status==='open');
+  $('#admMk').textContent=`${MONTH} · `+(M.status==='open'?'ставки приймаються':M.status==='closed'?'прийом закрито':'розраховано: '+(M.result==='refund'?'повернення':PICKS[M.result]));
+  if(!$('#admOdds').contains(document.activeElement))for(const k in PICKS)$('#od_'+k).value=(+M.odds[k]).toFixed(2);
+  const turn=S.bets.reduce((s,b)=>s+(+b.amount||0),0),paid=S.bets.reduce((s,b)=>s+(b.status==='won'||b.status==='refund'?+b.payout||0:0),0),open=S.bets.reduce((s,b)=>s+(b.status==='open'?+b.amount||0:0),0);
+  $('#admSum').innerHTML=Object.keys(PICKS).map(k=>{const s=kb.filter(b=>b.pick===k);const a=s.reduce((x,b)=>x+(+b.amount||0),0),p=s.reduce((x,b)=>x+(+b.amount||0)*(+b.odds||0),0);return stat(`${PICKS[k]} · ${s.length} ст.`,`${fmt(a)} → ${fmt(p)}`)}).join('')+stat('Прибуток казино',fmt(turn-paid-open));
+  const ps=Object.entries(S.players).sort((a,b)=>(a[1].nick||'').localeCompare(b[1].nick||''));
+  const sig=ps.map(([id,p])=>id+p.nick+p.balance).join('|');
+  if(sig!==pSig){pSig=sig;const sel=$('#admP'),keep=sel.value;
+    sel.innerHTML=ps.map(([id,p])=>`<option value="${esc(id)}">${esc(p.nick||'—')}${id===S.uid?' (ти)':''} — ${esc(fmt(p.balance))}</option>`).join('');
+    sel.value=keep&&S.players[keep]?keep:(S.players[S.uid]?S.uid:(ps[0]?.[0]||''))}
+  const ag={};S.bets.forEach(b=>{const a=ag[b.uid]=ag[b.uid]||{n:0,st:0,w:0};a.n++;a.st+=+b.amount||0;if(b.status==='won')a.w+=+b.payout||0});
+  $('#admPlayers').innerHTML=ps.length?`<table class="tbl stack"><thead><tr><th>Гравець</th><th class="r">Баланс</th><th class="r">Ставок</th><th class="r">Поставлено</th><th class="r">Виграно</th><th>Промокод</th><th>Дії</th></tr></thead><tbody>${ps.map(([id,p])=>{const a=ag[id]||{n:0,st:0,w:0};return`<tr${p.banned?' class="ban"':''}><td><b>${esc(p.nick)}</b>${p.banned?' <span class="tag lost">бан</span>':''}</td><td class="r">${esc(fmt(p.balance))}</td><td class="r">${a.n}</td><td class="r">${esc(fmt(a.st))}</td><td class="r">${esc(fmt(a.w))}</td><td>${p.promo?'так':'ні'}</td><td><div class="row"><button class="btn sm" data-act="apick" data-v="${esc(id)}">Баланс</button><button class="btn sm ghost" data-act="ban" data-v="${esc(id)}">${p.banned?'Розбанити':'Бан'}</button></div></td></tr>`}).join('')}</tbody></table>`:'<p class="mute">Гравців ще немає.</p>';
+  $('#admLog').innerHTML=S.log.length?`<ul class="log">${S.log.map(l=>`<li><time>${esc(dt(l.ts))}</time>${esc(l.text)}</li>`).join('')}</ul>`:'<p class="mute">Журнал порожній.</p>';
+}
+$('#admOdds').addEventListener('submit',async e=>{e.preventDefault();if(!admOk())return;const o={};
+  for(const k in PICKS){const v=+String($('#od_'+k).value).replace(',','.');if(!(v>=1.01&&v<=100)){toast('Коефіцієнт має бути від 1.01 до 100',1);return}o[k]=Math.round(v*100)/100}
+  document.activeElement?.blur();await setDoc('market',KEY,{...cleanMk(),odds:o});log(`Коефіцієнти К2 (${MONTH}): Буде ×${o.yes}, Не буде ×${o.no}, Можливо ×${o.maybe}`);toast('Коефіцієнти збережено')});
+async function mkStatus(st){if(!admOk())return;await setDoc('market',KEY,{...cleanMk(),status:st,result:st==='open'?null:mk().result});log(`Прийом ставок К2 ${st==='open'?'відкрито':'закрито'}`);toast(st==='open'?'Прийом ставок відкрито':'Прийом ставок закрито')}
+async function settle(res){
+  if(!admOk())return;
+  if(!await ask(`Оголосити результат «${MONTH}»: ${res==='refund'?'повернути всі ставки':PICKS[res]}? Виграші зарахуються гравцям автоматично.`))return;
+  let list;try{list=S.db?docsOf(await S.db.collection('bets').where('market','==',KEY).get()):Object.entries(L.bets||{}).map(([id,d])=>({id,...d})).filter(b=>b.market===KEY)}catch(e){list=S.bets.filter(b=>b.market===KEY)}
+  let n=0,sum=0;
+  for(const b of list){if(b.game!=='k2'||b.status!=='open')continue;
+    const st=res==='refund'?'refund':b.pick===res?'won':'lost',pay=st==='refund'?+b.amount:st==='won'?Math.round(+b.amount*+b.odds):0;
+    await upd('bets',b.id,{status:st,payout:pay});n++;sum+=pay}
+  await setDoc('market',KEY,{...cleanMk(),status:'settled',result:res,settledAt:Date.now()});
+  log(`Ринок ${MONTH} розраховано: ${res==='refund'?'повернення':PICKS[res]}. Ставок: ${n}, до виплати ${fmt(sum)}`);toast(`Готово: розраховано ${n} ставок`);
+}
+async function admBal(mode){
+  if(!admOk())return;const id=$('#admP').value,p=S.players[id];if(!p){toast('Обери гравця',1);return}
+  const v=Math.round(+$('#admAmt').value);if(!(v>=0)||(mode!=='set'&&!v)){toast('Вкажи суму',1);return}
+  const old=+p.balance||0,nb=mode==='add'?old+v:mode==='sub'?Math.max(0,old-v):v;if(nb>1e9){toast('Занадто велика сума',1);return}
+  p.balance=nb;await upd('players',id,{balance:nb});log(`${me().nick} (адмін): баланс ${p.nick} ${fmt(old)} → ${fmt(nb)}`);toast(`Баланс ${p.nick}: ${fmt(nb)}`);renderAll();
+}
+async function ban(id){if(!admOk())return;const p=S.players[id];if(!p)return;if(id===S.uid){toast('Себе забанити не можна',1);return}
+  await upd('players',id,{banned:!p.banned});log(`${me().nick} (адмін): ${p.banned?'розбанив':'забанив'} ${p.nick}`)}
+
+/* ---------- події ---------- */
+function toggleTheme(){const h=document.documentElement;
+  const dark=h.classList.contains('k2-dark')||(!h.classList.contains('k2-light')&&(h.dataset.theme==='dark'||(!h.dataset.theme&&matchMedia('(prefers-color-scheme: dark)').matches)));
+  setTheme(dark?'light':'dark')}
+function setTheme(t){const h=document.documentElement;h.classList.remove('k2-light','k2-dark');if(t)h.classList.add('k2-'+t);ls.set('k2theme',t)}
+const ACT={login:openLogin,reg:openReg,reset:openReset,cash:openCash,online:openOnline,logout,theme:toggleTheme,
+  pick:v=>{selPick=v;renderK2()},bet:betK2,chip:(v,a)=>chip(a.dataset.for,v),
+  rpick:v=>{rSel=v;renderRoulette()},spin,bf:v=>{bf=v;renderBets()},
+  delmsg:async v=>{if(admOk()&&await ask('Видалити це повідомлення з чату?'))await del('chat',v)},
+  mkst:mkStatus,settle,abal:admBal,ban,apick:v=>{$('#admP').value=v;$('#admAmt').focus();$('#admP').scrollIntoView({block:'center',behavior:reduced?'auto':'smooth'})}};
+document.addEventListener('click',e=>{const a=e.target.closest('[data-act]');if(!a||a.disabled)return;const f=ACT[a.dataset.act];if(f){if(a.tagName==='BUTTON'&&a.closest('form')&&a.type!=='button')return;f(a.dataset.v,a,e)}});
+$('#k2amt').addEventListener('input',updPot);$('#ramt').addEventListener('input',updR);
+
+const VIEWS=['k2','roulette','bets','chat','admin'];
+function route(){let v=location.hash.slice(1);if(!VIEWS.includes(v))v='k2';if(v==='admin'&&!S.admin)v='k2';if(v==='chat'&&matchMedia('(min-width:1000px)').matches)v='k2';
+  S.view=v;$$('.view[id^=v-]').forEach(s=>s.hidden=s.id!=='v-'+v);$('#chatbox').classList.toggle('show',v==='chat');
+  $$('nav.tabs a').forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+v));if(v==='chat')$('#msgs').scrollTop=1e9}
+addEventListener('hashchange',route);
+function renderHeader(){const m=me(),b=$('#acct');
+  if(!S.ready){b.innerHTML='<span class="mute sm">Підключення…</span>';return}
+  b.innerHTML=m&&S.logged?`<button class="pill bal" data-act="cash" title="Каса">${esc(fmt(m.balance))}</button><button class="btn gold hsm" data-act="cash">Каса</button><button class="btn ghost" data-act="logout" title="Вийти з акаунта ${esc(m.nick)}"><span class="hsm">${esc(m.nick)} · </span>Вийти</button>`
+    :`<button class="btn ghost" data-act="login">Вхід</button><button class="btn gold" data-act="reg">Реєстрація</button>`}
+function renderAll(){renderHeader();renderOnline();renderK2();renderRoulette();renderBets();renderChat();renderAdmin()}
+function tick(){const end=new Date(NOW.getFullYear(),NOW.getMonth()+1,1);let s=Math.max(0,Math.floor((end-Date.now())/1000));const d=Math.floor(s/86400);s%=86400;
+  const p=x=>String(x).padStart(2,'0');$('#k2cd').textContent=`${d} д ${p(Math.floor(s/3600))}:${p(Math.floor(s%3600/60))}:${p(s%60)}`}
+
+/* ---------- старт ---------- */
+async function boot(){
+  const t=ls.get('k2theme');if(t)setTheme(t);
+  $('#wheel').innerHTML=wheelSVG();
+  $('#board').innerHTML=[...Array(37).keys()].map(n=>`<button class="cell ${colorOf(n)}" data-act="rpick" data-v="n${n}" aria-label="Число ${n}">${n}</button>`).join('');
+  let d='';for(let i=0;i<5;i++){const y=140-i*15;d+=`<ellipse cx="100" cy="${y+6}" rx="62" ry="19" fill="${i===4?'#a77a10':'#8c1121'}"/><ellipse cx="100" cy="${y}" rx="62" ry="19" fill="${i===4?'#f2c14e':'#d7263d'}" stroke="#fff" stroke-width="3" stroke-dasharray="9 11"/>`}
+  $('#deco').innerHTML=d+'<text x="100" y="86" text-anchor="middle" font-family="Unbounded,sans-serif" font-weight="800" font-size="20" fill="#3a2600">K2</text>';
+  tick();setInterval(tick,1000);route();renderAll();
+  let c=window.claude;for(let i=0;i<30&&!c;i++){await wait(100);c=window.claude}
+  let db=null,user=null,room=null;
+  if(c&&typeof c.use==='function'){try{[db,user,room]=await Promise.all([c.use('db'),c.use('user'),c.use('room')])}catch(e){}}
+  S.db=db;S.room=room;
+  if(user){try{S.uid=await user.id()}catch(e){}try{S.admin=!!(await user.canEdit())}catch(e){}}
+  if(!db||!S.uid){S.offline=true;S.db=null;S.uid=ls.get('k2uid')||('local'+newId());ls.set('k2uid',S.uid);S.admin=true;$('#offline').hidden=false}
+  S.session=ls.get('k2in_'+S.uid)==='1';
+  const timer=setTimeout(()=>{if(!S.ready)toast('Не вдалося завантажити дані. Онови сторінку.',1)},10000);
+  sub('players',{},a=>{if(!a)return;clearTimeout(timer);S.players=Object.fromEntries(a.map(x=>[x.id,x]));const first=!S.ready;S.ready=true;
+    S.logged=!!me()&&S.session;renderAll();
+    if(first){pushPresence();if($('#ov').hidden){if(!me())openReg();else if(!S.logged)openLogin()}}claim()});
+  sub('bets',{order:'ts',limit:300},a=>{if(a){S.bets=a;renderK2();renderRoulette();renderBets();renderAdmin()}});
+  sub('bets',{where:['uid','==',S.uid]},a=>{if(a){S.myBets=a;claim()}});
+  sub('chat',{order:'ts',limit:80},a=>{if(a){S.chat=a.slice().reverse();renderChat()}});
+  sub('log',{order:'ts',limit:100},a=>{if(a){S.log=a;renderAdmin()}});
+  sub('market',{},a=>{if(a){S.markets=Object.fromEntries(a.map(x=>[x.id,x]));renderK2();renderAdmin()}});
+  if(room){try{room.onPeers(p=>{S.online=(Array.isArray(p)?p:Object.values(p||{})).filter(x=>x&&x.kind!=='agent');renderOnline()})}catch(e){}}
+  route();renderAll();
+}
+boot();
+}
+</script>
+</body>
+</html>
